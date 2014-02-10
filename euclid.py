@@ -25,6 +25,13 @@ Documentation and tests are included in the file "euclid.txt", or online
 at http://code.google.com/p/pyeuclid
 '''
 
+from __future__ import division, print_function, unicode_literals
+import sys
+if sys.version_info[0] > 2:
+    scalar_types = (int, float)
+else:
+    scalar_types = (int, long, float) 
+
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 __revision__ = '$Revision$'
@@ -134,7 +141,7 @@ class Vector2:
             return tuple([(self.x, self.y)['xy'.index(c)] \
                           for c in name])
         except ValueError:
-            raise AttributeError, name
+            raise AttributeError(name)
 
     if _enable_swizzle_set:
         # This has detrimental performance on ordinary setattr as well
@@ -149,7 +156,7 @@ class Vector2:
                         l['xy'.index(c)] = v
                     self.x, self.y = l
                 except ValueError:
-                    raise AttributeError, name
+                    raise AttributeError(name)
 
     def __add__(self, other):
         if isinstance(other, Vector2):
@@ -204,48 +211,48 @@ class Vector2:
                            other[1] - self.y)
 
     def __mul__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(self.x * other,
                        self.y * other)
 
     __rmul__ = __mul__
 
     def __imul__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         self.x *= other
         self.y *= other
         return self
 
     def __div__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.div(self.x, other),
                        operator.div(self.y, other))
 
 
     def __rdiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.div(other, self.x),
                        operator.div(other, self.y))
 
     def __floordiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.floordiv(self.x, other),
                        operator.floordiv(self.y, other))
 
 
     def __rfloordiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.floordiv(other, self.x),
                        operator.floordiv(other, self.y))
 
     def __truediv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.truediv(self.x, other),
                        operator.truediv(self.y, other))
 
 
     def __rtruediv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector2(operator.truediv(other, self.x),
                        operator.truediv(other, self.y))
     
@@ -358,7 +365,7 @@ class Vector3:
             return tuple([(self.x, self.y, self.z)['xyz'.index(c)] \
                           for c in name])
         except ValueError:
-            raise AttributeError, name
+            raise AttributeError(name)
 
     if _enable_swizzle_set:
         # This has detrimental performance on ordinary setattr as well
@@ -373,7 +380,7 @@ class Vector3:
                         l['xyz'.index(c)] = v
                     self.x, self.y, self.z = l
                 except ValueError:
-                    raise AttributeError, name
+                    raise AttributeError(name)
 
 
     def __add__(self, other):
@@ -447,7 +454,7 @@ class Vector3:
                           self.y * other.y,
                           self.z * other.z)
         else: 
-            assert type(other) in (int, long, float)
+            assert type(other) in scalar_types
             return Vector3(self.x * other,
                            self.y * other,
                            self.z * other)
@@ -455,47 +462,47 @@ class Vector3:
     __rmul__ = __mul__
 
     def __imul__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         self.x *= other
         self.y *= other
         self.z *= other
         return self
 
     def __div__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.div(self.x, other),
                        operator.div(self.y, other),
                        operator.div(self.z, other))
 
 
     def __rdiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.div(other, self.x),
                        operator.div(other, self.y),
                        operator.div(other, self.z))
 
     def __floordiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.floordiv(self.x, other),
                        operator.floordiv(self.y, other),
                        operator.floordiv(self.z, other))
 
 
     def __rfloordiv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.floordiv(other, self.x),
                        operator.floordiv(other, self.y),
                        operator.floordiv(other, self.z))
 
     def __truediv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.truediv(self.x, other),
                        operator.truediv(self.y, other),
                        operator.truediv(self.z, other))
 
 
     def __rtruediv__(self, other):
-        assert type(other) in (int, long, float)
+        assert type(other) in scalar_types
         return Vector3(operator.truediv(other, self.x),
                        operator.truediv(other, self.y),
                        operator.truediv(other, self.z))
@@ -1556,12 +1563,12 @@ class Quaternion:
 
 class Geometry:
     def _connect_unimplemented(self, other):
-        raise AttributeError, 'Cannot connect %s to %s' % \
-            (self.__class__, other.__class__)
+        raise AttributeError('Cannot connect %s to %s' % \
+            (self.__class__, other.__class__))
 
     def _intersect_unimplemented(self, other):
-        raise AttributeError, 'Cannot intersect %s and %s' % \
-            (self.__class__, other.__class__)
+        raise AttributeError('Cannot intersect %s and %s' % \
+            (self.__class__, other.__class__))
 
     _intersect_point2 = _intersect_unimplemented
     _intersect_line2 = _intersect_unimplemented
@@ -1752,18 +1759,18 @@ class Line2(Geometry):
                 self.p = args[0].copy()
                 self.v = args[1].copy()
             else:
-                raise AttributeError, '%r' % (args,)
+                raise AttributeError( '%r' % (args,))
         elif len(args) == 1:
             if isinstance(args[0], Line2):
                 self.p = args[0].p.copy()
                 self.v = args[0].v.copy()
             else:
-                raise AttributeError, '%r' % (args,)
+                raise AttributeError('%r' % (args,))
         else:
-            raise AttributeError, '%r' % (args,)
+            raise AttributeError('%r' % (args,))
         
         if not self.v:
-            raise AttributeError, 'Line has zero-length vector'
+            raise AttributeError( 'Line has zero-length vector')
 
     def __copy__(self):
         return self.__class__(self.p, self.v)
@@ -2110,15 +2117,15 @@ class Line3:
                 self.p = args[0].copy()
                 self.v = args[1].copy()
             else:
-                raise AttributeError, '%r' % (args,)
+                raise AttributeError( '%r' % (args,))
         elif len(args) == 1:
             if isinstance(args[0], Line3):
                 self.p = args[0].p.copy()
                 self.v = args[0].v.copy()
             else:
-                raise AttributeError, '%r' % (args,)
+                raise AttributeError('%r' % (args,))
         else:
-            raise AttributeError, '%r' % (args,)
+            raise AttributeError('%r' % (args,))
         
         # XXX This is annoying.
         #if not self.v:
@@ -2270,13 +2277,13 @@ class Plane:
                 self.n = args[0].normalized()
                 self.k = args[1]
             else:
-                raise AttributeError, '%r' % (args,)
+                raise AttributeError( '%r' % (args,))
 
         else:
-            raise AttributeError, '%r' % (args,)
+            raise AttributeError('%r' % (args,))
         
         if not self.n:
-            raise AttributeError, 'Points on plane are colinear'
+            raise AttributeError('Points on plane are colinear')
 
     def __copy__(self):
         return self.__class__(self.n, self.k)

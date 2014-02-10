@@ -1,5 +1,7 @@
 A bit of extra info about changes and versions, in chonological order:
 
+basic compatibility with py3
+
 added test and fixed rsub when doing Vector - tuple
 
 revisions 1 to 37 exported from http://code.google.com/p/pyeuclid to 
