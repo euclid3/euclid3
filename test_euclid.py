@@ -83,27 +83,49 @@ class Test_Vector2(unittest.TestCase):
             exception = a
         assert isinstance(exception, AttributeError)
         
-    def test_vector2_rsub(self):
+    def test_sub__v2_v2(self):
         a = (3.0, 7.0)
         b = (1.0, 2.0)
         va = eu.Vector2(*a)
         vb = eu.Vector2(*b)
         self.assertEquals(va-vb, eu.Vector2(2.0, 5.0))
-        self.assertEquals(va-b, eu.Vector2(2.0, 5.0))
-        self.assertEquals(a-vb, eu.Vector2(2.0, 5.0))
         
+    def test_sub__v2_t2(self):
+        a = (3.0, 7.0)
+        b = (1.0, 2.0)
+        va = eu.Vector2(*a)
+        vb = eu.Vector2(*b)
+        self.assertEquals(va-b, eu.Vector2(2.0, 5.0))
+
+    def test_rsub__t2_v2(self):
+        a = (3.0, 7.0)
+        b = (1.0, 2.0)
+        va = eu.Vector2(*a)
+        vb = eu.Vector2(*b)
+        self.assertEquals(a-vb, eu.Vector2(2.0, 5.0))
 
 class Test_Vector3(unittest.TestCase):
 
-    def test_vector3_rsub(self):
+    def test_sub__v3_v3(self):
         a = (3.0, 7.0, 9.0)
         b = (1.0, 2.0, 3.0)
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
         self.assertEquals(va-vb, eu.Vector3(2.0, 5.0, 6.0))
-        self.assertEquals(va-b, eu.Vector3(2.0, 5.0, 6.0))
-        self.assertEquals(a-vb, eu.Vector3(2.0, 5.0, 6.0))
         
+    def test_sub__v3_t3(self):
+        a = (3.0, 7.0, 9.0)
+        b = (1.0, 2.0, 3.0)
+        va = eu.Vector3(*a)
+        vb = eu.Vector3(*b)
+        self.assertEquals(va-b, eu.Vector3(2.0, 5.0, 6.0))
+
+    def test_rsub__t3_v3(self):
+        a = (3.0, 7.0, 9.0)
+        b = (1.0, 2.0, 3.0)
+        va = eu.Vector3(*a)
+        vb = eu.Vector3(*b)
+        self.assertEquals(a-vb, eu.Vector3(2.0, 5.0, 6.0))
     
 if __name__ == '__main__':
     unittest.main()

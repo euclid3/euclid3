@@ -3,3 +3,4 @@ Tristam MacDonald <swiftcoder@gmail.com>
 Jonathan Hartley <https://github.com/tartley>
 Dov Grobgeld <dov.grobgeld@gmail.com>
 elfnor
+Claudio Canepa <ccanepacc@gmail.com>
