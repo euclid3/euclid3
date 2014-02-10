@@ -1,0 +1,6 @@
+A bit of extra info about changes and versions, in chonological order:
+
+added test and fixed rsub when doing Vector - tuple
+
+revisions 1 to 37 exported from http://code.google.com/p/pyeuclid to 
+https://github.com/euclid3/euclid3 , they are the first 34 commits
