@@ -1,9 +1,7 @@
-euclid
-2D and 3D maths module for Python
+euclid3
+vector, matrix, quaternion and some geometry in 2D and 3D for Python 2.6+ and 3.3+
 
-Homepage: http://code.google.com/p/pyeuclid/
-Contact:  Alex Holkner
-          Alex.Holkner@mail.google.com
+This is a fork of euclid, http://code.google.com/p/pyeuclid/
 
 Usage
 -----
