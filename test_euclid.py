@@ -7,18 +7,18 @@ class Test_Vector2(unittest.TestCase):
     def test_instantiate(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
-        self.assertEquals(repr(v2), "Vector2(%.2f, %.2f)" % xy)
+        self.assertEqual(repr(v2), "Vector2(%.2f, %.2f)" % xy)
 
     def test_instantiate_default(self):
         v2 = eu.Vector2()
-        self.assertEquals(repr(v2), "Vector2(%.2f, %.2f)" % (0, 0))
+        self.assertEqual(repr(v2), "Vector2(%.2f, %.2f)" % (0, 0))
 
     def test_copy(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
         copy = v2.__copy__()
-        self.assertEquals(repr(v2), repr(copy))
+        self.assertEqual(repr(v2), repr(copy))
         self.assertFalse(copy is v2)
 
     def test_eq_v2(self):
@@ -30,7 +30,7 @@ class Test_Vector2(unittest.TestCase):
 
     def test_eq_tuple(self):
         xy = (1.0, 2.0)
-        self.assertEquals(eu.Vector2(*xy), xy)
+        self.assertEqual(eu.Vector2(*xy), xy)
 
         other = (1.0, 2.0, 3.0)
         self.assertRaises( AssertionError,
@@ -42,13 +42,13 @@ class Test_Vector2(unittest.TestCase):
 
     def test_len(self):
         xy = (1.0, 2.0)
-        self.assertEquals(len(eu.Vector2(*xy)), 2)
+        self.assertEqual(len(eu.Vector2(*xy)), 2)
         
     def test_index_access__get(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
-        self.assertEquals( v2[0], xy[0])
-        self.assertEquals(v2[1], xy[1])
+        self.assertEqual( v2[0], xy[0])
+        self.assertEqual(v2[1], xy[1])
         self.assertRaises(IndexError,
                           lambda a: v2[a], 2)
 
@@ -56,9 +56,9 @@ class Test_Vector2(unittest.TestCase):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
         v2[0] = 7.0
-        self.assertEquals(repr(v2), "Vector2(%.2f, %.2f)" % (7.0, 2.0))
+        self.assertEqual(repr(v2), "Vector2(%.2f, %.2f)" % (7.0, 2.0))
         v2[1] = 8.0
-        self.assertEquals(repr(v2), "Vector2(%.2f, %.2f)" % (7.0, 8.0))
+        self.assertEqual(repr(v2), "Vector2(%.2f, %.2f)" % (7.0, 8.0))
         def f():
             v2[2] = 9.0 
         self.assertRaises(IndexError, f)
@@ -67,14 +67,14 @@ class Test_Vector2(unittest.TestCase):
         xy = [1.0, 2.0]
         v2 = eu.Vector2(*xy)
         sequence = [e for e in v2]
-        self.assertEquals(sequence, xy)
+        self.assertEqual(sequence, xy)
         
     def test_swizzle_get(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
-        self.assertEquals(v2.x, xy[0])
-        self.assertEquals(v2.y, xy[1])
-        self.assertEquals(v2.xy, xy)
+        self.assertEqual(v2.x, xy[0])
+        self.assertEqual(v2.y, xy[1])
+        self.assertEqual(v2.xy, xy)
 
         exception = None
         try:
@@ -88,21 +88,21 @@ class Test_Vector2(unittest.TestCase):
         b = (1.0, 2.0)
         va = eu.Vector2(*a)
         vb = eu.Vector2(*b)
-        self.assertEquals(va-vb, eu.Vector2(2.0, 5.0))
+        self.assertEqual(va-vb, eu.Vector2(2.0, 5.0))
         
     def test_sub__v2_t2(self):
         a = (3.0, 7.0)
         b = (1.0, 2.0)
         va = eu.Vector2(*a)
         vb = eu.Vector2(*b)
-        self.assertEquals(va-b, eu.Vector2(2.0, 5.0))
+        self.assertEqual(va-b, eu.Vector2(2.0, 5.0))
 
     def test_rsub__t2_v2(self):
         a = (3.0, 7.0)
         b = (1.0, 2.0)
         va = eu.Vector2(*a)
         vb = eu.Vector2(*b)
-        self.assertEquals(a-vb, eu.Vector2(2.0, 5.0))
+        self.assertEqual(a-vb, eu.Vector2(2.0, 5.0))
 
 class Test_Vector3(unittest.TestCase):
 
@@ -111,21 +111,21 @@ class Test_Vector3(unittest.TestCase):
         b = (1.0, 2.0, 3.0)
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
-        self.assertEquals(va-vb, eu.Vector3(2.0, 5.0, 6.0))
+        self.assertEqual(va-vb, eu.Vector3(2.0, 5.0, 6.0))
         
     def test_sub__v3_t3(self):
         a = (3.0, 7.0, 9.0)
         b = (1.0, 2.0, 3.0)
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
-        self.assertEquals(va-b, eu.Vector3(2.0, 5.0, 6.0))
+        self.assertEqual(va-b, eu.Vector3(2.0, 5.0, 6.0))
 
     def test_rsub__t3_v3(self):
         a = (3.0, 7.0, 9.0)
         b = (1.0, 2.0, 3.0)
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
-        self.assertEquals(a-vb, eu.Vector3(2.0, 5.0, 6.0))
+        self.assertEqual(a-vb, eu.Vector3(2.0, 5.0, 6.0))
     
 if __name__ == '__main__':
     unittest.main()
