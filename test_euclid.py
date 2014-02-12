@@ -3,6 +3,13 @@ from __future__ import division, print_function, unicode_literals
 import euclid as eu
 import unittest
 
+import copy
+try:
+    import cPickle as pickle
+except Exception:
+    import pickle
+import io
+
 class Test_Vector2(unittest.TestCase):
     def test_instantiate(self):
         xy = (1.0, 2.0)
@@ -17,9 +24,17 @@ class Test_Vector2(unittest.TestCase):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
-        copy = v2.__copy__()
-        self.assertEqual(repr(v2), repr(copy))
-        self.assertFalse(copy is v2)
+        copied = v2.__copy__()
+        self.assertEqual(repr(v2), repr(copied))
+        self.assertFalse(copied is v2)
+
+    def test_deepcopy(self):
+        xy = (1.0, 2.0)
+        v2 = eu.Vector2(*xy)
+
+        copied = copy.deepcopy(v2)
+        self.assertEqual(repr(v2), repr(copied))
+        self.assertFalse(copied is v2)        
 
     def test_eq_v2(self):
         xy = (1.0, 2.0)
@@ -105,6 +120,14 @@ class Test_Vector2(unittest.TestCase):
         self.assertEqual(a-vb, eu.Vector2(2.0, 5.0))
 
 class Test_Vector3(unittest.TestCase):
+
+    def test_deepcopy(self):
+        xy = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xy)
+
+        copied = copy.deepcopy(v3)
+        self.assertEqual(repr(v3), repr(copied))
+        self.assertFalse(copied is v3)        
 
     def test_sub__v3_v3(self):
         a = (3.0, 7.0, 9.0)
