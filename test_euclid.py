@@ -36,6 +36,15 @@ class Test_Vector2(unittest.TestCase):
         self.assertEqual(repr(v2), repr(copied))
         self.assertFalse(copied is v2)        
 
+    def test_pickle(self):
+        xy = (1.0, 2.0)
+        v2 = eu.Vector2(*xy)
+
+        s = pickle.dumps(v2)
+        copied = pickle.loads(s)
+        self.assertEqual(repr(v2), repr(copied))
+        self.assertFalse(copied is v2)        
+
     def test_eq_v2(self):
         xy = (1.0, 2.0)
         self.assertTrue(eu.Vector2(*xy), eu.Vector2(*xy))
@@ -122,10 +131,19 @@ class Test_Vector2(unittest.TestCase):
 class Test_Vector3(unittest.TestCase):
 
     def test_deepcopy(self):
-        xy = (1.0, 2.0, 3.0)
-        v3 = eu.Vector3(*xy)
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
 
         copied = copy.deepcopy(v3)
+        self.assertEqual(repr(v3), repr(copied))
+        self.assertFalse(copied is v3)        
+
+    def test_pickle(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+
+        s = pickle.dumps(v3)
+        copied = pickle.loads(s)
         self.assertEqual(repr(v3), repr(copied))
         self.assertFalse(copied is v3)        
 
