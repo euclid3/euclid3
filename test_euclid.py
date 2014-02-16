@@ -29,18 +29,32 @@ class Test_Vector2(unittest.TestCase):
         self.assertFalse(copied is v2)
 
     def test_deepcopy(self):
+        print('begin test_deepcopy')
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
         copied = copy.deepcopy(v2)
+        print('*** copied') 
         self.assertEqual(repr(v2), repr(copied))
-        self.assertFalse(copied is v2)        
-
-    def test_pickle(self):
+        self.assertFalse(copied is v2)
+        self.assertFalse(hasattr(copied, '__dict__'))
+        print('end test_deepcopy')
+        
+    # fails with protocols 0 and 1 if __getstate__ not implemented
+    def test_pickle_lower_protocols_fail(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
-        s = pickle.dumps(v2)
+        s = pickle.dumps(v2, 0)
+        copied = pickle.loads(s)
+        self.assertEqual(repr(v2), repr(copied))
+        self.assertFalse(copied is v2)        
+
+    def test_pickle_protocol_2(self):
+        xy = (1.0, 2.0)
+        v2 = eu.Vector2(*xy)
+
+        s = pickle.dumps(v2, 2)
         copied = pickle.loads(s)
         self.assertEqual(repr(v2), repr(copied))
         self.assertFalse(copied is v2)        
@@ -99,6 +113,7 @@ class Test_Vector2(unittest.TestCase):
         self.assertEqual(v2.x, xy[0])
         self.assertEqual(v2.y, xy[1])
         self.assertEqual(v2.xy, xy)
+        self.assertEqual(v2.yx, (xy[1], xy[0]))
 
         exception = None
         try:
@@ -130,6 +145,23 @@ class Test_Vector2(unittest.TestCase):
 
 class Test_Vector3(unittest.TestCase):
 
+    def test_instantiate(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+        self.assertEqual(repr(v3), "Vector3(%.2f, %.2f, %.2f)" % xyz)
+
+    def test_instantiate_default(self):
+        v3 = eu.Vector3()
+        self.assertEqual(repr(v3), "Vector3(%.2f, %.2f, %.2f)" % (0, 0, 0))
+
+    def test_copy(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+
+        copied = v3.__copy__()
+        self.assertEqual(repr(v3), repr(copied))
+        self.assertFalse(copied is v3)
+
     def test_deepcopy(self):
         xyz = (1.0, 2.0, 3.0)
         v3 = eu.Vector3(*xyz)
@@ -138,14 +170,104 @@ class Test_Vector3(unittest.TestCase):
         self.assertEqual(repr(v3), repr(copied))
         self.assertFalse(copied is v3)        
 
-    def test_pickle(self):
+    # fails with protocols 0 and 1 if __getstate__ not implemented
+    def test_pickle_lower_protocols_fail(self):
         xyz = (1.0, 2.0, 3.0)
         v3 = eu.Vector3(*xyz)
 
-        s = pickle.dumps(v3)
+        s = pickle.dumps(v3, 0)
         copied = pickle.loads(s)
         self.assertEqual(repr(v3), repr(copied))
         self.assertFalse(copied is v3)        
+
+    def test_pickle_protocol_2(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+
+        s = pickle.dumps(v3, 2)
+        copied = pickle.loads(s)
+        self.assertEqual(repr(v3), repr(copied))
+        self.assertFalse(copied is v3)        
+
+    def test_eq_v3(self):
+        xyz = (1.0, 2.0, 3.0)
+        self.assertTrue(eu.Vector3(*xyz), eu.Vector3(*xyz))
+
+        other = (1.0, 3.0, 7.0)
+        self.assertTrue( eu.Vector3(*xyz) != eu.Vector3(*other))
+
+    def test_eq_tuple(self):
+        xyz = (1.0, 2.0, 3.0)
+        self.assertEqual(eu.Vector3(*xyz), xyz)
+
+        other = (1.0, 2.0, 3.0, 4.0)
+        self.assertRaises( AssertionError,
+                           lambda a, b: a == b, eu.Vector3(*xyz), other)
+
+        other = 1.0
+        self.assertRaises( AssertionError,
+                           lambda a, b: a == b, eu.Vector3(*xyz), other)
+
+    def test_len(self):
+        xyz = (1.0, 2.0, 3.0)
+        self.assertEqual(len(eu.Vector3(*xyz)), 3)
+        
+    def test_index_access__get(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+        self.assertEqual( v3[0], xyz[0])
+        self.assertEqual(v3[1], xyz[1])
+        self.assertEqual(v3[2], xyz[2])
+        self.assertRaises(IndexError,
+                          lambda a: v3[a], 3)
+
+    def test_index_access__set(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+        v3[0] = 7.0
+        self.assertEqual(repr(v3), "Vector3(%.2f, %.2f, %.2f)" % (7.0, 2.0, 3.0))
+        v3[1] = 8.0
+        self.assertEqual(repr(v3), "Vector3(%.2f, %.2f, %.2f)" % (7.0, 8.0, 3.0))
+        v3[2] = 9.0
+        self.assertEqual(repr(v3), "Vector3(%.2f, %.2f, %.2f)" % (7.0, 8.0, 9.0))
+        def f():
+            v3[3] = 9.0 
+        self.assertRaises(IndexError, f)
+
+    def test_iter(self):
+        xyz = [1.0, 2.0, 3.0]
+        v3 = eu.Vector3(*xyz)
+        sequence = [e for e in v3]
+        self.assertEqual(sequence, xyz)
+        
+    def test_swizzle_get(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Vector3(*xyz)
+        self.assertEqual(v3.x, xyz[0])
+        self.assertEqual(v3.y, xyz[1])
+        self.assertEqual(v3.z, xyz[2])
+
+        self.assertEqual(v3.xy, (xyz[0], xyz[1]))
+        self.assertEqual(v3.xz, (xyz[0], xyz[2]))
+        self.assertEqual(v3.yz, (xyz[1], xyz[2]))
+
+        self.assertEqual(v3.yx, (xyz[1], xyz[0]))
+        self.assertEqual(v3.zx, (xyz[2], xyz[0]))
+        self.assertEqual(v3.zy, (xyz[2], xyz[1]))
+
+        self.assertEqual(v3.xyz, xyz)
+        self.assertEqual(v3.xzy, (xyz[0], xyz[2], xyz[1]) )
+        self.assertEqual(v3.zyx, (xyz[2], xyz[1], xyz[0]) )
+        self.assertEqual(v3.zxy, (xyz[2], xyz[0], xyz[1]) )
+        self.assertEqual(v3.yxz, (xyz[1], xyz[0], xyz[2]) )
+        self.assertEqual(v3.yzx, (xyz[1], xyz[2], xyz[0]) )
+
+        exception = None
+        try:
+            v3.u == 11.0
+        except Exception as a:
+            exception = a
+        assert isinstance(exception, AttributeError)
 
     def test_sub__v3_v3(self):
         a = (3.0, 7.0, 9.0)
@@ -167,6 +289,45 @@ class Test_Vector3(unittest.TestCase):
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
         self.assertEqual(a-vb, eu.Vector3(2.0, 5.0, 6.0))
+
+class Test_Point2(unittest.TestCase):
+    def test_swizzle_get(self):
+        xy = (1.0, 2.0)
+        v2 = eu.Point2(*xy)
+        self.assertEqual(v2.x, xy[0])
+        self.assertEqual(v2.y, xy[1])
+        self.assertEqual(v2.xy, xy)
+        self.assertEqual(v2.yx, (xy[1], xy[0]))
+
+        exception = None
+        try:
+            v2.z == 11.0
+        except Exception as a:
+            exception = a
+        assert isinstance(exception, AttributeError)
+
+class Test_Point3(unittest.TestCase):
+    def test_swizzle_get(self):
+        xyz = (1.0, 2.0, 3.0)
+        v3 = eu.Point3(*xyz)
+        self.assertEqual(v3.x, xyz[0])
+        self.assertEqual(v3.y, xyz[1])
+        self.assertEqual(v3.z, xyz[2])
+
+        self.assertEqual(v3.xy, (xyz[0], xyz[1]))
+        self.assertEqual(v3.xz, (xyz[0], xyz[2]))
+        self.assertEqual(v3.yz, (xyz[1], xyz[2]))
+
+        self.assertEqual(v3.yx, (xyz[1], xyz[0]))
+        self.assertEqual(v3.zx, (xyz[2], xyz[0]))
+        self.assertEqual(v3.zy, (xyz[2], xyz[1]))
+
+        self.assertEqual(v3.xyz, xyz)
+        self.assertEqual(v3.xzy, (xyz[0], xyz[2], xyz[1]) )
+        self.assertEqual(v3.zyx, (xyz[2], xyz[1], xyz[0]) )
+        self.assertEqual(v3.zxy, (xyz[2], xyz[0], xyz[1]) )
+        self.assertEqual(v3.yxz, (xyz[1], xyz[0], xyz[2]) )
+        self.assertEqual(v3.yzx, (xyz[1], xyz[2], xyz[0]) )
     
 if __name__ == '__main__':
     unittest.main()
