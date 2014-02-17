@@ -29,26 +29,20 @@ class Test_Vector2(unittest.TestCase):
         self.assertFalse(copied is v2)
 
     def test_deepcopy(self):
-        print('begin test_deepcopy')
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
         copied = copy.deepcopy(v2)
-        print('*** copied') 
         self.assertEqual(repr(v2), repr(copied))
         self.assertFalse(copied is v2)
         self.assertFalse(hasattr(copied, '__dict__'))
-        print('end test_deepcopy')
         
     # fails with protocols 0 and 1 if __getstate__ not implemented
     def test_pickle_lower_protocols_fail(self):
         xy = (1.0, 2.0)
         v2 = eu.Vector2(*xy)
 
-        s = pickle.dumps(v2, 0)
-        copied = pickle.loads(s)
-        self.assertEqual(repr(v2), repr(copied))
-        self.assertFalse(copied is v2)        
+        self.assertRaises(Exception, pickle.dumps, v2, 0)
 
     def test_pickle_protocol_2(self):
         xy = (1.0, 2.0)
@@ -175,10 +169,7 @@ class Test_Vector3(unittest.TestCase):
         xyz = (1.0, 2.0, 3.0)
         v3 = eu.Vector3(*xyz)
 
-        s = pickle.dumps(v3, 0)
-        copied = pickle.loads(s)
-        self.assertEqual(repr(v3), repr(copied))
-        self.assertFalse(copied is v3)        
+        self.assertRaises(Exception, pickle.dumps, v3, 0)
 
     def test_pickle_protocol_2(self):
         xyz = (1.0, 2.0, 3.0)
