@@ -137,6 +137,23 @@ class Test_Vector2(unittest.TestCase):
         vb = eu.Vector2(*b)
         self.assertEqual(a-vb, eu.Vector2(2.0, 5.0))
 
+    # in py3 or py2 with 'from __future__ import division'
+    # else the integer division is used, as in old euclid.py
+    def test_default_div(self):
+        xy = (4, 7)
+        v2 = eu.Vector2(*xy)
+
+        c = v2 / 3
+        self.assertTrue(c.x == 4.0 / 3, c.y == 7.0 / 3)
+
+    def test_integer_division(self):
+        xy = (4, 7)
+        v2 = eu.Vector2(*xy)
+
+        c = v2 // 3
+        self.assertTrue(c.x == 4 // 3, c.y == 7 // 3)
+    
+
 class Test_Vector3(unittest.TestCase):
 
     def test_instantiate(self):
