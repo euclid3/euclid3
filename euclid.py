@@ -40,58 +40,8 @@ import math
 import operator
 import types
 
-# Some magic here.  If _use_slots is True, the classes will derive from
-# object and will define a __slots__ class variable.  If _use_slots is
-# False, classes will be old-style and will not define __slots__.
-#
-# _use_slots = True:   Memory efficient, probably faster in future versions
-#                      of Python, "better".
-# _use_slots = False:  Ordinary classes, much faster than slots in current
-#                      versions of Python (2.4 and 2.5).
-_use_slots = True
 
-# If True, allows components of Vector2 and Vector3 to be set via swizzling;
-# e.g.  v.xyz = (1, 2, 3).  This is much, much slower than the more verbose
-# v.x = 1; v.y = 2; v.z = 3,  and slows down ordinary element setting as
-# well.  Recommended setting is False.
-_enable_swizzle_set = False
-
-# Requires class to derive from object.
-if _enable_swizzle_set:
-    _use_slots = True
-
-# Implement _use_slots magic.
-class _EuclidMetaclass(type):
-    def __new__(cls, name, bases, dct):
-        if '__slots__' in dct:
-            dct['__getstate__'] = cls._create_getstate(dct['__slots__'])
-            dct['__setstate__'] = cls._create_setstate(dct['__slots__'])
-        if _use_slots:
-            return type.__new__(cls, name, bases + (object,), dct)
-        else:
-            if '__slots__' in dct:
-                del dct['__slots__']
-            return types.ClassType.__new__(types.ClassType, name, bases, dct)
-
-    @classmethod
-    def _create_getstate(cls, slots):
-        def __getstate__(self):
-            d = {}
-            for slot in slots:
-                d[slot] = getattr(self, slot)
-            return d
-        return __getstate__
-
-    @classmethod
-    def _create_setstate(cls, slots):
-        def __setstate__(self, state):
-            for name, value in state.items():
-                setattr(self, name, value)
-        return __setstate__
-
-__metaclass__ = _EuclidMetaclass
-
-class Vector2:
+class Vector2(object):
     __slots__ = ['x', 'y']
     __hash__ = None
 
@@ -136,27 +86,12 @@ class Vector2:
     def __iter__(self):
         return iter((self.x, self.y))
 
-    def __getattr__(self, name):
-        try:
-            return tuple([(self.x, self.y)['xy'.index(c)] \
-                          for c in name])
-        except ValueError:
-            raise AttributeError(name)
+    # swizzle implemented as properties, read only
+    def _get_xy(self): return self.x, self.y
+    xy = property(_get_xy, doc="(x, y)")
 
-    if _enable_swizzle_set:
-        # This has detrimental performance on ordinary setattr as well
-        # if enabled
-        def __setattr__(self, name, value):
-            if len(name) == 1:
-                object.__setattr__(self, name, value)
-            else:
-                try:
-                    l = [self.x, self.y]
-                    for c, v in map(None, name, value):
-                        l['xy'.index(c)] = v
-                    self.x, self.y = l
-                except ValueError:
-                    raise AttributeError(name)
+    def _get_yx(self): return self.y, self.x
+    yx = property(_get_yx, doc="(y, x)")
 
     def __add__(self, other):
         if isinstance(other, Vector2):
@@ -310,7 +245,7 @@ class Vector2:
         n = other.normalized()
         return self.dot(n)*n
 
-class Vector3:
+class Vector3(object):
     __slots__ = ['x', 'y', 'z']
     __hash__ = None
 
@@ -357,31 +292,42 @@ class Vector3:
         l[key] = value
         self.x, self.y, self.z = l
 
-    def __iter__(self):
-        return iter((self.x, self.y, self.z))
+    # swizzle implemented as properties, read only
+    def _get_xy(self): return self.x, self.y
+    xy = property(_get_xy, doc="(x, y)")
 
-    def __getattr__(self, name):
-        try:
-            return tuple([(self.x, self.y, self.z)['xyz'.index(c)] \
-                          for c in name])
-        except ValueError:
-            raise AttributeError(name)
+    def _get_xz(self): return self.x, self.z
+    xz = property(_get_xz, doc="(x, z)")
 
-    if _enable_swizzle_set:
-        # This has detrimental performance on ordinary setattr as well
-        # if enabled
-        def __setattr__(self, name, value):
-            if len(name) == 1:
-                object.__setattr__(self, name, value)
-            else:
-                try:
-                    l = [self.x, self.y, self.z]
-                    for c, v in map(None, name, value):
-                        l['xyz'.index(c)] = v
-                    self.x, self.y, self.z = l
-                except ValueError:
-                    raise AttributeError(name)
+    def _get_yz(self): return self.y, self.z
+    yz = property(_get_yz, doc="(y, z)")
 
+    def _get_yx(self): return self.y, self.x
+    yx = property(_get_yx, doc="(y, x)")
+
+    def _get_zx(self): return self.z, self.x
+    zx = property(_get_zx, doc="(z, x)")
+
+    def _get_zy(self): return self.z, self.y
+    zy = property(_get_zy, doc="(z, y)")
+
+    def _get_xyz(self): return self.x, self.y, self.z
+    xyz = property(_get_xyz, doc="(x, y, z)")
+    
+    def _get_xzy(self): return self.x, self.z, self.y
+    xzy = property(_get_xzy, doc="(x, z, y)")
+
+    def _get_zyx(self): return self.z, self.y, self.x
+    zyx = property(_get_zyx, doc="(z, y, x)")
+
+    def _get_zxy(self): return self.z, self.x, self.y
+    zxy = property(_get_zxy, doc="(z, x, y)")
+
+    def _get_yxz(self): return self.y, self.x, self.z
+    yxz = property(_get_yxz, doc="(y, x, z)")
+
+    def _get_yzx(self): return self.y, self.z, self.x
+    yzx = property(_get_yzx, doc="(y, z, x)")
 
     def __add__(self, other):
         if isinstance(other, Vector3):
@@ -593,7 +539,7 @@ class Vector3:
 # e f g 
 # i j k 
 
-class Matrix3:
+class Matrix3(object):
     __slots__ = list('abcefgijk')
 
     def __init__(self):
@@ -799,7 +745,7 @@ class Matrix3:
 # i j k l
 # m n o p
 
-class Matrix4:
+class Matrix4():
     __slots__ = list('abcdefghijklmnop')
 
     def __init__(self):
@@ -1232,7 +1178,7 @@ class Matrix4:
         return tmp;
         
 
-class Quaternion:
+class Quaternion(object):
     # All methods and naming conventions based off 
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions
 
@@ -1561,7 +1507,7 @@ class Quaternion:
 # Much maths thanks to Paul Bourke, http://astronomy.swin.edu.au/~pbourke
 # ---------------------------------------------------------------------------
 
-class Geometry:
+class Geometry(object):
     def _connect_unimplemented(self, other):
         raise AttributeError('Cannot connect %s to %s' % \
             (self.__class__, other.__class__))
@@ -2099,7 +2045,7 @@ class Point3(Vector3, Geometry):
         if c:
             return c._swap()
 
-class Line3:
+class Line3(object):
     __slots__ = ['p', 'v']
 
     def __init__(self, *args):
@@ -2209,7 +2155,7 @@ class LineSegment3(Line3):
 
     length = property(lambda self: abs(self.v))
 
-class Sphere:
+class Sphere(object):
     __slots__ = ['c', 'r']
 
     def __init__(self, center, radius):
@@ -2257,7 +2203,7 @@ class Sphere:
         if c:
             return c
 
-class Plane:
+class Plane(object):
     # n.p = k, where n is normal, p is point on plane, k is constant scalar
     __slots__ = ['n', 'k']
 
