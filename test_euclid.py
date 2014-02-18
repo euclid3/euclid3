@@ -153,6 +153,22 @@ class Test_Vector2(unittest.TestCase):
         c = v2 // 3
         self.assertTrue(c.x == 4 // 3, c.y == 7 // 3)
     
+    def test_add(self):
+        a = (3.0, 7.0)
+        b = (1.0, 2.0)
+        va = eu.Vector2(*a)
+        vb = eu.Vector2(*b)
+
+        self.assertTrue(isinstance(va+vb, eu.Vector2))
+        self.assertEqual(repr(va+vb), 'Vector2(%.2f, %.2f)' % (4.0, 9.0))
+
+        c = (11.0, 17.0)
+        pc = eu.Point2(*c)
+        d = (13.0, 23.0)
+        pd = eu.Point2(*d)
+        
+        self.assertTrue(isinstance(va+pc, eu.Point2))
+        self.assertTrue(isinstance(pc+pd, eu.Vector2))
 
 class Test_Vector3(unittest.TestCase):
 
