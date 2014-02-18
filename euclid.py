@@ -711,32 +711,47 @@ class Matrix3(object):
     new_rotate = classmethod(new_rotate)
 
     def determinant(self):
-        return (self.a*self.f*self.k 
-                + self.b*self.g*self.i 
-                + self.c*self.e*self.j 
-                - self.a*self.g*self.j 
-                - self.b*self.e*self.k 
-                - self.c*self.f*self.i)
+        m00 = self.a
+        m10 = self.b
+        m20 = self.c
+        m01 = self.e
+        m11 = self.f
+        m21 = self.g
+        m02 = self.i
+        m12 = self.j
+        m22 = self.k
+
+        return m00*m11*m22 + m01*m12*m20 + m02*m10*m21 - m00*m12*m21 - m01*m10*m22 - m02*m11*m20
 
     def inverse(self):
         tmp = Matrix3()
-        d = self.determinant()
+        det = self.determinant()
 
-        if abs(d) < 0.001:
+        if abs(det) < 0.001:
             # No inverse, return identity
             return tmp
         else:
-            d = 1.0 / d
+            m00 = self.a
+            m10 = self.b
+            m20 = self.c
+            m01 = self.e
+            m11 = self.f
+            m21 = self.g
+            m02 = self.i
+            m12 = self.j
+            m22 = self.k
 
-            tmp.a = d * (self.f*self.k - self.g*self.j)
-            tmp.b = d * (self.c*self.j - self.b*self.k)
-            tmp.c = d * (self.b*self.g - self.c*self.f)
-            tmp.e = d * (self.g*self.i - self.e*self.k)
-            tmp.f = d * (self.a*self.k - self.c*self.i)
-            tmp.g = d * (self.c*self.e - self.a*self.g)
-            tmp.i = d * (self.e*self.j - self.f*self.i)
-            tmp.j = d * (self.b*self.i - self.a*self.j)
-            tmp.k = d * (self.a*self.f - self.b*self.e)
+            det = 1.0 / det
+
+            tmp.a = det * (m11*m22 - m12*m21)
+            tmp.b = det * (m12*m20 - m10*m22)
+            tmp.c = det * (m10*m21 - m11*m20)
+            tmp.e = det * (m02*m21 - m01*m22)
+            tmp.f = det * (m00*m22 - m02*m20)
+            tmp.g = det * (m01*m20 - m00*m21)
+            tmp.i = det * (m01*m12 - m02*m11)
+            tmp.j = det * (m02*m10 - m00*m12)
+            tmp.k = det * (m00*m11 - m01*m10)
 
             return tmp
 
