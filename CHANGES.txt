@@ -1,8 +1,15 @@
-A bit of extra info about changes and versions, in chonological order:
 
-basic compatibility with py3
+Adopted the cocos.euclid implementation of Matrix3 determinant and inverse;
+is a bit faster. Issue #5
 
-added test and fixed rsub when doing Vector - tuple
+Simplified code by elimination of __metaclass__ and mode flags.
+Implemented swizzle with properties.
+This also fixes problems of vector classes with copy.deepcopy and pickle in py3
+See issues #2, #3, #4
+  
+Basic compatibility with py3
 
-revisions 1 to 37 exported from http://code.google.com/p/pyeuclid to 
+Added test and fixed rsub when doing Vector - tuple ; issue #1
+
+Revisions 1 to 37 exported from http://code.google.com/p/pyeuclid to 
 https://github.com/euclid3/euclid3 , they are the first 34 commits
