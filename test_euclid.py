@@ -170,6 +170,23 @@ class Test_Vector2(unittest.TestCase):
         self.assertTrue(isinstance(va+pc, eu.Point2))
         self.assertTrue(isinstance(pc+pd, eu.Vector2))
 
+        self.assertTrue(isinstance(va + b, eu.Vector2))
+        self.assertEqual(va + vb, va + b)
+
+    def test_inplace_add(self):
+        a = (3.0, 7.0)
+        b = (1.0, 2.0)
+        va = eu.Vector2(*a)
+        vb = eu.Vector2(*b)
+        va += b
+        self.assertEqual((va.x, va.y) , (4.0, 9.0))
+
+        va = eu.Vector2(*a)
+        va += b
+        self.assertEqual((va.x, va.y) , (4.0, 9.0))
+        
+
+
 class Test_Vector3(unittest.TestCase):
 
     def test_instantiate(self):
