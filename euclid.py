@@ -28,8 +28,10 @@ at http://code.google.com/p/pyeuclid
 from __future__ import division, print_function, unicode_literals
 import sys
 if sys.version_info[0] > 2:
+    PY2 = False
     scalar_types = (int, float)
 else:
+    PY2 = True
     scalar_types = (int, long, float) 
 
 __docformat__ = 'restructuredtext'
@@ -82,8 +84,12 @@ class Vector2(Slotted):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __nonzero__(self):
-        return self.x != 0 or self.y != 0
+    if PY2:
+        def __nonzero__(self):
+            return self.x != 0 or self.y != 0
+    else:
+        def __bool__(self):
+            return self.x != 0 or self.y != 0
 
     def __len__(self):
         return 2
@@ -291,8 +297,12 @@ class Vector3(Slotted):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __nonzero__(self):
-        return self.x != 0 or self.y != 0 or self.z != 0
+    if PY2:
+        def __nonzero__(self):
+            return self.x != 0 or self.y != 0 or self.z != 0
+    else:
+        def __bool__(self):
+            return self.x != 0 or self.y != 0 or self.z != 0
 
     def __len__(self):
         return 3
