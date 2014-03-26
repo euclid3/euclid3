@@ -2,7 +2,7 @@ from __future__ import division, print_function, unicode_literals
 
 import copy
 import io
-from math import sqrt, sin, cos, radians, degrees
+from math import sqrt, sin, cos, radians, degrees, hypot
 try:
     import cPickle as pickle
 except Exception:
@@ -649,7 +649,6 @@ class Test_Vector3(unittest.TestCase):
         self.assertEqual(yy.cross(zz), xx)
         self.assertEqual(zz.cross(xx), yy)
 
-
     def test_reflect(self):
         v = eu.Vector3(1.0, 1.0, 1.0)
         w = v.reflect(eu.Vector3(1.0, 0.0, 0.0))
@@ -662,24 +661,66 @@ class Test_Vector3(unittest.TestCase):
         w = v.reflect(eu.Vector3(0.0, 0.0, 1.0))
         self.assertTrue( abs(w - eu.Vector3(1.0, 1.0, -1.0)) < fe)
 
-##    def test_rotate_around(self):
+    def test_rotate_around(self):
+        v = eu.Vector3(3.5, 41.9, 12.7)
+        axis = eu.Vector3(15.3, 22.0, 2.3)
+        angle = radians(25)
+        a = complex(cos(angle), sin(angle))
 
+        # same_magnitude
+        self.assertTrue( abs(abs(v)-abs(v.rotate_around(axis, angle)))<fe )
 
-##    def test_angle(self):
-##        aa = 25
-##        v = eu.Vector2(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))
-##        bb = 35
-##        w = eu.Vector2(5.0 * cos(radians(bb)), 5.0 * sin(radians(bb)))
-##        self.assertTrue( abs(degrees(v.angle(w)) - 10.0) < fe )
-##        # orientation doesn't matter
-##        self.assertEqual(v.angle(w), w.angle(v))
-##
-##    def test_project(self):
-##        aa = 25
-##        v = eu.Vector2(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))
-##        self.assertTrue( abs(v.project(eu.Vector2(2.0, 0.0)) - v.x * eu.Vector2(1.0, 0.0)) < fe)
-##        self.assertTrue( abs(v.project(eu.Vector2(0.0, 5.0)) - v.y * eu.Vector2(0.0, 1.0)) < fe)
-##        self.assertTrue( abs(v.project(v) - abs(v) * eu.Vector2(cos(radians(aa)), sin(radians(aa)))) < fe)
+        xx = eu.Vector3(1.0, 0.0, 0.0)
+        yy = eu.Vector3(0.0, 1.0, 0.0)
+        zz = eu.Vector3(0.0, 0.0, 1.0)
+        angle = radians(90)
+
+        self.assertTrue( abs(xx.rotate_around(zz, angle) - yy) < fe )
+        self.assertTrue( abs(xx.rotate_around(yy, angle) - (-zz)) < fe )
+        self.assertTrue( abs(yy.rotate_around(zz, angle) - (-xx)) < fe )
+        self.assertTrue( abs(yy.rotate_around(xx, angle) - zz) < fe )
+        self.assertTrue( abs(zz.rotate_around(xx, angle) - (-yy)) < fe )
+        self.assertTrue( abs(zz.rotate_around(yy, angle) - xx) < fe )
+
+    def test_angle(self):
+        aa = 25
+        v = eu.Vector3(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)), 0.0)
+        bb = 35
+        w = eu.Vector3(5.0 * cos(radians(bb)), 5.0 * sin(radians(bb)), 0.0)
+        self.assertTrue( abs(degrees(v.angle(w)) - 10.0) < fe )
+        # orientation doesn't matter
+        self.assertEqual(v.angle(w), w.angle(v))
+
+        v = eu.Vector3(3.0 * cos(radians(aa)), 0.0, 3.0 * sin(radians(aa)))
+        bb = 35
+        w = eu.Vector3(5.0 * cos(radians(bb)), 0.0, 5.0 * sin(radians(bb)))
+        self.assertTrue( abs(degrees(v.angle(w)) - 10.0) < fe )
+        # orientation doesn't matter
+        self.assertEqual(v.angle(w), w.angle(v))
+
+        v = eu.Vector3(0.0, 3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))
+        bb = 35
+        w = eu.Vector3(0.0, 5.0 * cos(radians(bb)), 5.0 * sin(radians(bb)))
+        self.assertTrue( abs(degrees(v.angle(w)) - 10.0) < fe )
+        # orientation doesn't matter
+        self.assertEqual(v.angle(w), w.angle(v))
+
+    def test_project(self):
+        v = eu.Vector3(1.1, 5.0, 17.3)
+        x3 = eu.Vector3(3.0, 0.0, 0.0)
+        y3 = eu.Vector3(0.0, 3.0, 0.0)
+        z3 = eu.Vector3(0.0, 0.0, 3.0)
+
+        self.assertTrue(abs(v.project(xx) - eu.Vector3(v.x, 0.0, 0.0)))
+        self.assertTrue(abs(v.project(yy) - eu.Vector3(0.0, v.y, 0.0)))
+        self.assertTrue(abs(v.project(zz) - eu.Vector3(0.0, 0.0, v.z)))
+
+    def test_project(self):
+        aa = 25
+        v = eu.Vector2(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))
+        self.assertTrue( abs(v.project(eu.Vector2(2.0, 0.0)) - v.x * eu.Vector2(1.0, 0.0)) < fe)
+        self.assertTrue( abs(v.project(eu.Vector2(0.0, 5.0)) - v.y * eu.Vector2(0.0, 1.0)) < fe)
+        self.assertTrue( abs(v.project(v) - abs(v) * eu.Vector2(cos(radians(aa)), sin(radians(aa)))) < fe)
 
 
 class Test_Point2(unittest.TestCase):
