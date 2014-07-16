@@ -1616,6 +1616,10 @@ def _intersect_line2_circle(L, C):
     sq = math.sqrt(det)
     u1 = (-b + sq) / (2 * a)
     u2 = (-b - sq) / (2 * a)
+
+    if u1 * u2 > 0 and not L._u_in(u1) and not L._u_in(u2):
+        return None
+
     if not L._u_in(u1):
         u1 = max(min(u1, 1.0), 0.0)
     if not L._u_in(u2):

@@ -756,6 +756,14 @@ The following methods are supported by all three classes:
     the part of the line that intersects the circle, or None if there
     is no intersection.
 
+    >>> c = Circle(Point2(0.0, 0.0), 1.0)
+    >>> s = LineSegment2(Point2(-4.0, 0.0), Point2(-3.0, 0.0))
+    >>> s.intersect(c)
+
+    >>> c = Circle(Point2(4,5), 1.0)
+    >>> r = Ray2(Point2(13.0, 5.0), Vector2(1.0, 0.0))
+    >>> r.intersect(c)
+
 ``connect(other)``
     Returns a **LineSegment2** which is the minimum length line segment
     that can connect the two shapes.  For two parallel lines, this
