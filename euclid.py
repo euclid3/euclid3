@@ -255,6 +255,12 @@ class Vector2(Slotted):
         return Vector2(self.x - d * normal.x,
                        self.y - d * normal.y)
 
+    def rotate(self, theta):
+        cs = math.cos(theta)
+        sn = math.sin(theta)
+        return Vector2(self.x * cs - self.y * sn,
+                       self.x * sn + self.y * cs)
+
     def angle(self, other):
         """Return the angle to the vector other"""
         return math.acos(self.dot(other) / (self.magnitude()*other.magnitude()))

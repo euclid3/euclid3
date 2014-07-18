@@ -216,6 +216,14 @@ The following methods do *not* alter the original vector or their arguments:
         >>> v.reflect(Vector2(1, 0))
         Vector2(-1.00, 2.00)
 
+``rotate(theta)``
+    For 2D vectors, return the vector rotated around origin by the angle theta.
+    Example:
+
+        >>> v = Vector2(1., 2.)
+        >>> v.rotate(math.pi/2)
+        Vector2(-2.00, 1.00)
+
 ``rotate_around(axes, theta)``
     For 3D vectors, return the vector rotated around axis by the angle theta.
 
