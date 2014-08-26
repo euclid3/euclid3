@@ -188,6 +188,14 @@ The following methods do *not* alter the original vector or their arguments:
         >>> v1.dot(v2)
         32.0
 
+``determinant(other)``
+    Return the scalar "determinant" of two 2D vectors. Example:
+
+        >>> v1 = Vector2(1., 2.)
+        >>> v2 = Vector2(3., 4.)
+        >>> v1.determinant(v2)
+        -2.0
+
 ``cross()`` and ``cross(other)``
     Return the cross product of a vector (for **Vector2**), or the cross
     product of two vectors (for **Vector3**).  The return type is a
