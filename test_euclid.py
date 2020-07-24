@@ -320,6 +320,15 @@ class Test_Vector2(unittest.TestCase):
         # orientation doesn't matter
         self.assertEqual(v.angle(w), w.angle(v))
 
+    def test_angle_oriented(self):
+        aa = 25
+        v = eu.Vector2(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))
+        bb = 35
+        w = eu.Vector2(5.0 * cos(radians(bb)), 5.0 * sin(radians(bb)))
+        self.assertTrue( abs(degrees(v.angle_oriented(w)) - 10.0) < fe )
+        # orientation matters
+        self.assertEqual(v.angle_oriented(w), -w.angle_oriented(v))
+
     def test_project(self):
         aa = 25
         v = eu.Vector2(3.0 * cos(radians(aa)), 3.0 * sin(radians(aa)))

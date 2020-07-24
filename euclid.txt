@@ -242,7 +242,25 @@ The following methods do *not* alter the original vector or their arguments:
 
 ``angle(other)``
     Return the angle between two vectors.
-    
+    Example:
+
+        >>> v1 = Vector2(1., 1.)
+        >>> v1.angle(Vector2(1., 0.))
+        0.7853981633974484
+        >>> v1.angle(Vector2(-1., 0.))
+        2.356194490192345
+
+``angle_oriented(other)``
+    Return the angle between two vectors, with sign indicating orientation.
+    Example:
+
+        >>> v1 = Vector2(1., 1.)
+        >>> v1.angle_oriented(Vector2(1., 0.))
+        -0.7853981633974483
+        >>> v1.angle_oriented(Vector2(-1., 0.))
+        2.356194490192345
+
+
 ``project(other)``
     Return the projection (the component) of the vector on other.
 
