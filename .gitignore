@@ -1,0 +1,21 @@
+*.py[co]
+*.db
+*~
+dist
+*.log
+*.diff
+*.patch
+tmp/
+output/
+build/
+.idea/
+__pycache__/
+.cache/
+*.egg-info/
+docgen/_build
+
+# coverage.py
+.coverage
+
+# pyenv
+.python-version
