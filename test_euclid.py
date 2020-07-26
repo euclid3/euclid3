@@ -295,6 +295,11 @@ class Test_Vector2(unittest.TestCase):
         vb = eu.Vector2(*b)
         d = va.dot(vb)
         self.assertTrue(abs(d - (3.0 + 14.0)) < fe)
+
+    def test_determinant(self):
+        self.assertTrue(abs(1 - eu.Vector2(1, 0).determinant(eu.Vector2(0, 1))) < fe)
+        self.assertTrue(abs(-1 - eu.Vector2(0, 1).determinant(eu.Vector2(1, 0))) < fe)
+        self.assertTrue(abs(0 - eu.Vector2(0, 1).determinant(eu.Vector2(0, 1))) < fe)
         
     def test_cross(self):
         a = (3.0, 7.0)
@@ -310,6 +315,16 @@ class Test_Vector2(unittest.TestCase):
         self.assertFalse(w is v)
         self.assertTrue( abs(w - eu.Vector2(*(-1.0, 1.0))) < fe)
         self.assertTrue( abs(w.reflect(normal) - v) < fe )
+
+    def test_rotate(self):
+        v = eu.Vector2(1, 0)
+        self.assertTrue(abs(v.rotate(radians(90)) - eu.Vector2(0, 1)) < fe)
+        v = eu.Vector2(0, 1)
+        self.assertTrue(abs(v.rotate(radians(90)) - eu.Vector2(-1, 0)) < fe)
+        v = eu.Vector2(-1, 0)
+        self.assertTrue(abs(v.rotate(radians(90)) - eu.Vector2(0, -1)) < fe)
+        v = eu.Vector2(0, -1)
+        self.assertTrue(abs(v.rotate(radians(90)) - eu.Vector2(1, 0)) < fe)
 
     def test_angle(self):
         aa = 25
@@ -747,6 +762,184 @@ class Test_Point2(unittest.TestCase):
         except Exception as a:
             exception = a
         assert isinstance(exception, AttributeError)
+
+# helper to assert Line2 equals
+def line2_normal_rep(line):
+    "norm(v) == 1, v.x>=0 if v.x !=0, else v.y <0; p with p.x==0 (if v.x!=0) or p with p.y==0"
+    assert isinstance(line, eu.Line2)
+    v1 = line.v.normalized()
+    if v1.x < 0:
+        v1 = -v1
+    elif v1.x == 0 and v1.y < 0:
+        v1 = -v1
+    p = line.p
+    if v1.x != 0:
+        # choose p the point the line crosses the y-axis
+        a = p.x / v1.x
+        p1_x = p.x - a * v1.x
+        p1_y = p.y - a * v1.y
+    else:
+        # choose p the point the line crosses the x-axis
+        a = p.y / v1.y
+        p1_x = p.x - a * v1.x
+        p1_y = p.y - a * v1.y
+    p1 = eu.Point2(p1_x, p1_y)
+    return eu.Line2(p1, v1)
+
+def line2_qeq(line1, line2, qe):
+    "Line2 quasi equal"
+    L1 = line2_normal_rep(line1)
+    L2 = line2_normal_rep(line2)
+    return abs(L1.p - L2.p) + abs(L1.v - L2.v) < qe
+
+def ray2_qeq(ray1, ray2, qe):
+    return abs(ray1.p - ray2.p) + abs(ray1.v.normalized() - ray2.v.normalized()) < qe
+
+def linesegment2_qeq(ls1, ls2, qe):
+    "LineSegment2 quasi equal"
+    if abs(ls1.p - ls2.p) < qe:
+        return abs(ls1.p - ls2.p) + abs(ls1.v - ls2.v) < qe
+    q = ls1.p + ls1.v
+    w = - ls1.v
+    return abs(q - ls2.p) + abs(w - ls2.v) < qe
+
+class Test_Line2_family(unittest.TestCase):
+    def test_basic_sanity__linesegment2_qeq(self):
+        # with itself
+        a = eu.Point2(1, 2); b = eu.Point2(5, 11)
+        r = eu.LineSegment2(a, b)
+        self.assertTrue(linesegment2_qeq(r, r, fe))
+        # with reversed
+        s = eu.LineSegment2(b, a)
+        self.assertTrue(linesegment2_qeq(r, s, fe))
+        # with different
+        b = eu.Point2(5, 11.1)
+        s = eu.LineSegment2(a, b)
+        self.assertFalse(linesegment2_qeq(r, s, fe))
+
+    def test_basic_sanity__line2_qeq(self):
+        ## line t*(2, 1) + (0, 1)
+        a = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        # same p, same v -> True
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        self.assertTrue(line2_qeq(a, b, fe))
+        # same v, different p -> False
+        b = eu.Line2(eu.Point2(0.0, 1.5), eu.Vector2(2.0, 1.0))
+        self.assertFalse(line2_qeq(a, b, fe))
+        # non-parallel v, same p -> False
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.5))
+        self.assertFalse(line2_qeq(a, b, fe))
+
+    def test_basic_sanity__ray2_qeq(self):
+        ## ray t*(2, 1) + (0, 1)
+        a = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        # same p, same v -> True
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        self.assertTrue(ray2_qeq(a, b, fe))
+        # same v, different p -> False
+        b = eu.Ray2(eu.Point2(0.0, 1.5), eu.Vector2(2.0, 1.0))
+        self.assertFalse(ray2_qeq(a, b, fe))
+        # non-parallel v, same p -> False
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.5))
+        self.assertFalse(ray2_qeq(a, b, fe))
+
+    def test_Line2_basics(self):
+        # line t*(2, 1) + (0, 1)
+        a = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        # with -v
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(-2.0, -1.0))
+        self.assertTrue(line2_qeq(a, b, fe))
+        # with 2*v
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(4.0, 2.0))
+        self.assertTrue(line2_qeq(a, b, fe))
+        # at t=0 and t=1
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Point2(6.0, 4.0))
+        self.assertTrue(line2_qeq(a, b, fe))
+        # at t=-1 and t=2
+        b = eu.Line2(eu.Point2(-2.0, 0.0), eu.Point2(4.0, 3.0))
+        self.assertTrue(line2_qeq(a, b, fe))
+        # with float, expect same direction but with norm == the float
+        # TODO: fails with int, need fix in __init__, ask for isinstance(x, numbers.Real)
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0), 7.0)
+        self.assertTrue(line2_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+        # with Line2, expect equal
+        b = eu.Line2(a)
+        self.assertTrue(line2_qeq(a, b, fe))
+
+    def test_Ray2_basics(self):
+        # ray t*(2, 1) + (0, 1)
+        a = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        # with itself
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        self.assertTrue(ray2_qeq(a, b, fe))
+        # with 2*v
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(4.0, 2.0))
+        self.assertTrue(ray2_qeq(a, b, fe))
+        # with float, expect same direction but with norm == abs(float)
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0), 7.0)
+        self.assertTrue(ray2_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+##        # with 2, expect equal -> fails with current master, needs fixing
+##        #__init__ , use __class__ instead of Line2
+##        b = eu.Ray2(a)
+##        self.assertEqual(a, b)
+
+
+class Test_Circle_intersect(unittest.TestCase):
+    # here Circle was in fact considered a 'disk' aka 'Ball2'
+    def test_LineSegment2(self):
+        C = eu.Circle(eu.Point2(0, 0), 1.0)
+        # segment outside
+        self.assertEqual(None,
+            C.intersect(eu.LineSegment2(eu.Point2(-3, 0), eu.Point2(-2, 0))))
+        # segment inside
+        ls = eu.LineSegment2(eu.Point2(-0.5, 0), eu.Point2(0.5, 0))
+        self.assertTrue(linesegment2_qeq(ls, C.intersect(ls), fe))
+        # cross one
+        ls = eu.LineSegment2(eu.Point2(0.5, 0), eu.Point2(1.5, 0))
+        expect = eu.LineSegment2(eu.Point2(0.5, 0), eu.Point2(1.0, 0))
+        self.assertTrue(linesegment2_qeq(expect, C.intersect(ls), fe))
+        # cross two
+        ls = eu.LineSegment2(eu.Point2(-2, 0), eu.Point2(2.0, 0))
+        expect = eu.LineSegment2(eu.Point2(-1, 0), eu.Point2(1.0, 0))
+        self.assertTrue(linesegment2_qeq(expect, C.intersect(ls), fe))
+        # tangent
+        ls = eu.LineSegment2(eu.Point2(-1, 1), eu.Point2(1.0, 1))
+        expect = eu.Point2(0, 1)
+        self.assertTrue(abs(expect - C.intersect(ls)) < fe)
+
+    def test_Ray2(self):
+        C = eu.Circle(eu.Point2(0, 0), 1.0)
+        # ray outside
+        self.assertEqual(None,
+            C.intersect(eu.Ray2(eu.Point2(2, 0), eu.Vector2(1, 0))))
+        # cross one
+        ls = eu.Ray2(eu.Point2(0.5, 0), eu.Vector2(1, 0))
+        expect = eu.LineSegment2(eu.Point2(0.5, 0), eu.Point2(1.0, 0))
+        self.assertTrue(linesegment2_qeq(expect, C.intersect(ls), fe))
+        # cross two
+        ls = eu.Ray2(eu.Point2(-2, 0), eu.Vector2(1, 0))
+        expect = eu.LineSegment2(eu.Point2(-1, 0), eu.Point2(1.0, 0))
+        self.assertTrue(linesegment2_qeq(expect, C.intersect(ls), fe))
+        # tangent
+        ls = eu.Ray2(eu.Point2(-1, 1), eu.Vector2(1.0, 0))
+        expect = eu.Point2(0, 1)
+        self.assertTrue(abs(expect - C.intersect(ls)) < fe)
+
+    def test_Line2(self):
+        C = eu.Circle(eu.Point2(0, 0), 1.0)
+        # line outside
+        self.assertEqual(None,
+            C.intersect(eu.Line2(eu.Point2(0, 2), eu.Vector2(1, 0))))
+        # cross two
+        ls = eu.Line2(eu.Point2(-2, 0), eu.Vector2(1, 0))
+        expect = eu.LineSegment2(eu.Point2(-1, 0), eu.Point2(1.0, 0))
+        self.assertTrue(linesegment2_qeq(expect, C.intersect(ls), fe))
+        # tangent
+        ls = eu.Line2(eu.Point2(-1, 1), eu.Vector2(1.0, 0))
+        expect = eu.Point2(0, 1)
+        self.assertTrue(abs(expect - C.intersect(ls)) < fe)
 
 class Test_Point3(unittest.TestCase):
     def test_swizzle_get(self):
