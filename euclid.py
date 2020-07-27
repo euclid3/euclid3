@@ -269,7 +269,10 @@ class Vector2(Slotted):
 
     def angle(self, other):
         """Return the angle to the vector other"""
-        return math.acos(self.dot(other) / (self.magnitude()*other.magnitude()))
+        # numerical errors can make tmp outside of [-1, 1], so clamp it
+        tmp = self.dot(other) / (self.magnitude()*other.magnitude())
+        tmp = tmp if abs(tmp) <= 1 else (1 if tmp > 0 else -1) 
+        return math.acos(tmp)
 
     def angle_oriented(self, other):
         """Return the angle to the vector other, with orientation in sign"""
