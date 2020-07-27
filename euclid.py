@@ -26,6 +26,7 @@ at http://code.google.com/p/pyeuclid
 '''
 
 from __future__ import division, print_function, unicode_literals
+import numbers
 import sys
 if sys.version_info[0] > 2:
     PY2 = False
@@ -402,11 +403,12 @@ class Vector3(Slotted):
             # Vector - Vector -> Vector
             # Vector - Point -> Point
             # Point - Point -> Vector
+            # Point - Vector -> Point
             if self.__class__ is other.__class__:
                 _class = Vector3
             else:
                 _class = Point3
-            return Vector3(self.x - other.x,
+            return _class(self.x - other.x,
                            self.y - other.y,
                            self.z - other.z)
         else:
@@ -1751,7 +1753,7 @@ class Line2(Geometry, Slotted):
         if len(args) == 3:
             assert isinstance(args[0], Point2) and \
                    isinstance(args[1], Vector2) and \
-                   type(args[2]) == float
+                   isinstance(args[2], numbers.Real)
             self.p = args[0].copy()
             self.v = args[1] * args[2] / abs(args[1])
         elif len(args) == 2:
@@ -1850,9 +1852,9 @@ class Circle(Geometry, Slotted):
     __slots__ = ['c', 'r']
 
     def __init__(self, center, radius):
-        assert isinstance(center, Vector2) and type(radius) == float
+        assert isinstance(center, Vector2) and isinstance(radius, numbers.Real)
         self.c = center.copy()
-        self.r = radius
+        self.r = float(radius)
 
     def __copy__(self):
         return self.__class__(self.c, self.r)
@@ -2109,7 +2111,7 @@ class Line3(Slotted):
         if len(args) == 3:
             assert isinstance(args[0], Point3) and \
                    isinstance(args[1], Vector3) and \
-                   type(args[2]) == float
+                   isinstance(args[2], numbers.Real)
             self.p = args[0].copy()
             self.v = args[1] * args[2] / abs(args[1])
         elif len(args) == 2:

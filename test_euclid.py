@@ -519,8 +519,16 @@ class Test_Vector3(unittest.TestCase):
         b = (1.0, 2.0, 3.0)
         va = eu.Vector3(*a)
         vb = eu.Vector3(*b)
+        self.assertTrue(isinstance(va-vb, eu.Vector3))
         self.assertEqual(va-vb, eu.Vector3(2.0, 5.0, 6.0))
         
+    def test_sub__v3_p3(self):
+        a = (3.0, 7.0, 9.0)
+        b = (1.0, 2.0, 3.0)
+        va = eu.Vector3(*a)
+        vb = eu.Point3(*b)
+        self.assertTrue(isinstance(va-vb, eu.Point3))
+
     def test_sub__v3_t3(self):
         a = (3.0, 7.0, 9.0)
         b = (1.0, 2.0, 3.0)
@@ -793,10 +801,12 @@ def line2_qeq(line1, line2, qe):
     return abs(L1.p - L2.p) + abs(L1.v - L2.v) < qe
 
 def ray2_qeq(ray1, ray2, qe):
+    assert isinstance(ray1, eu.Ray2) and isinstance(ray2, eu.Ray2) 
     return abs(ray1.p - ray2.p) + abs(ray1.v.normalized() - ray2.v.normalized()) < qe
 
 def linesegment2_qeq(ls1, ls2, qe):
-    "LineSegment2 quasi equal"
+    "LineSegment2 quasi equal, unoriented"
+    assert isinstance(ls1, eu.LineSegment2) and isinstance(ls2, eu.LineSegment2)
     if abs(ls1.p - ls2.p) < qe:
         return abs(ls1.p - ls2.p) + abs(ls1.v - ls2.v) < qe
     q = ls1.p + ls1.v
@@ -859,8 +869,11 @@ class Test_Line2_family(unittest.TestCase):
         b = eu.Line2(eu.Point2(-2.0, 0.0), eu.Point2(4.0, 3.0))
         self.assertTrue(line2_qeq(a, b, fe))
         # with float, expect same direction but with norm == the float
-        # TODO: fails with int, need fix in __init__, ask for isinstance(x, numbers.Real)
         b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0), 7.0)
+        self.assertTrue(line2_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+        # same as before but pass an int
+        b = eu.Line2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0), 7)
         self.assertTrue(line2_qeq(a, b, fe))
         self.assertTrue(abs(b.v.magnitude() - 7)<fe)
         # with Line2, expect equal
@@ -870,9 +883,9 @@ class Test_Line2_family(unittest.TestCase):
     def test_Ray2_basics(self):
         # ray t*(2, 1) + (0, 1)
         a = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
-        # with itself
-        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
-        self.assertTrue(ray2_qeq(a, b, fe))
+        # with -v
+        b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(-2.0, -1.0))
+        self.assertFalse(ray2_qeq(a, b, fe))
         # with 2*v
         b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(4.0, 2.0))
         self.assertTrue(ray2_qeq(a, b, fe))
@@ -880,11 +893,26 @@ class Test_Line2_family(unittest.TestCase):
         b = eu.Ray2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0), 7.0)
         self.assertTrue(ray2_qeq(a, b, fe))
         self.assertTrue(abs(b.v.magnitude() - 7)<fe)
-##        # with 2, expect equal -> fails with current master, needs fixing
-##        #__init__ , use __class__ instead of Line2
-##        b = eu.Ray2(a)
-##        self.assertEqual(a, b)
+        # with Ray2, expect equal
+        b = eu.Ray2(a)
+        self.assertTrue(ray2_qeq(a, b, fe))
 
+    def test_LineSegment2_basics(self):
+        # line t*(2, 1) + (0, 1)
+        a = eu.LineSegment2(eu.Point2(0.0, 1.0), eu.Vector2(2.0, 1.0))
+        # with LineSegment2, expect equal
+        b = eu.LineSegment2(a)
+        self.assertTrue(linesegment2_qeq(a, b, fe))
+
+def circle_qec(c1, c2, qe):
+    assert isinstance(c1, eu.Circle) and isinstance(c2, eu.Circle)
+    return abs(c1.c - c2.c) + abs(c1.r - c2.r) < qe
+
+class Test_Circle(unittest.TestCase):
+    def test_circle_basics(self):
+        a = eu.Circle(eu.Point2(1,2), 7.0)
+        b = eu.Circle(eu.Point2(1,2), 7)
+        self.assertTrue(circle_qec(a, b, fe))
 
 class Test_Circle_intersect(unittest.TestCase):
     # here Circle was in fact considered a 'disk' aka 'Ball2'
@@ -963,6 +991,171 @@ class Test_Point3(unittest.TestCase):
         self.assertEqual(v3.zxy, (xyz[2], xyz[0], xyz[1]) )
         self.assertEqual(v3.yxz, (xyz[1], xyz[0], xyz[2]) )
         self.assertEqual(v3.yzx, (xyz[1], xyz[2], xyz[0]) )
-    
+
+def point_nearest_0(L):
+    assert isinstance(L, eu.Line3)
+    t = - L.p.dot(L.v) / L.v.magnitude_squared()
+    p = L.p + t * L.v
+    return p
+
+def test_point_nearest_0():
+    # take p an unit vector, take the line that pass over p with direction
+    # an orthogonal vector; expect p the nearest to 0
+    L = eu.Line3(eu.Point3(1, 0, 0), eu.Vector3(0, 1, 0))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # with multiplied v, expect same result
+    L = eu.Line3(eu.Point3(1, 0, 0), eu.Vector3(0, 7, 0))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # with -v, expect same result
+    L = eu.Line3(eu.Point3(1, 0, 0), eu.Vector3(0, -1, 0))
+    # moving p along the line, expect same result
+    L = eu.Line3(eu.Point3(1, 11, 0), eu.Vector3(0, 7, 0))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    ## similar with the other ortho vector
+    L = eu.Line3(eu.Point3(1, 0, 0), eu.Vector3(0, 0, 1))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # with multiplied v
+    L = eu.Line3(eu.Point3(1, 0, 0), eu.Vector3(0, 0, 7))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # moving p along the line
+    L = eu.Line3(eu.Point3(1, 0, 11), eu.Vector3(0, 0, 7))
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    ## similar with a combo ortho vector
+    w = eu.Vector3(0, 1, 1)
+    L = eu.Line3(eu.Point3(1, 0, 0), w)
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # with multiplied v
+    L = eu.Line3(eu.Point3(1, 0, 0), 7 * w)
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+    # moving p along the line
+    L = eu.Line3(eu.Point3(1, 0, 0) + 11*w, w)
+    assert abs(point_nearest_0(L) - eu.Point3(1, 0, 0)) < fe
+
+# helper to assert Line3 equals
+def line3_normal_rep(L):
+    "p the point in line nearest to 0, v with |v|=1 and 1st component nonzero >0"
+    assert isinstance(L, eu.Line3)
+    p = point_nearest_0(L)
+    v = L.v.normalized()
+    if v.x < 0:
+        v = -v
+    elif v.x == 0:
+        if v.y < 0:
+            v = -v
+        elif v.y == 0:
+            if v.z < 0:
+                v = -v
+    return eu.Line3(p, v)
+
+def line3_qeq(line1, line2, qe):
+    "Line2 quasi equal"
+    L1 = line3_normal_rep(line1)
+    L2 = line3_normal_rep(line2)
+    return abs(L1.p - L2.p) + abs(L1.v - L2.v) < qe
+
+def ray3_qeq(ray1, ray2, qe):
+    assert isinstance(ray1, eu.Ray3) and isinstance(ray2, eu.Ray3)
+    return abs(ray1.p - ray2.p) + abs(ray1.v.normalized() - ray2.v.normalized()) < qe
+
+def linesegment3_qeq(ls1, ls2, qe):
+    "LineSegment3 quasi equal, unoriented"
+    assert isinstance(ls1, eu.LineSegment3) and isinstance(ls2, eu.LineSegment3)
+    if abs(ls1.p - ls2.p) + abs(ls1.v - ls2.v) < qe:
+        return  True
+    q = ls1.p + ls1.v
+    w = - ls1.v
+    return abs(q - ls2.p) + abs(w - ls2.v) < qe
+
+class Test_Line3_family(unittest.TestCase):
+    def test_basic_sanity__line3_qeq(self):
+        # line t*(2, 1, 7) + (0, 1, 0)
+        a = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        # same p, same v -> True
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        self.assertTrue(line3_qeq(a, b, fe))
+        # same v, different p -> False
+        b = eu.Line3(eu.Point3(0.0, 0.9, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        self.assertFalse(line3_qeq(a, b, fe))
+        # non-parallel v, same p -> False
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.1, 7.0))
+        self.assertFalse(line3_qeq(a, b, fe))
+
+    def test_Line3_basics(self):
+        # line t*(2, 1, 7) + (0, 1, 0)
+        a = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        # with -v
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(-2.0, -1.0, -7.0))
+        self.assertTrue(line3_qeq(a, b, fe))
+        # with 2*v
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(4.0, 2.0, 14.0))
+        self.assertTrue(line3_qeq(a, b, fe))
+        # at t=0 and t=1
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Point3(2.0, 2.0, 7.0))
+        self.assertTrue(line3_qeq(a, b, fe))
+        # at t=-1 and t=2
+        b = eu.Line3(eu.Point3(-2.0, 0.0, -7.0), eu.Point3(4.0, 3.0, 14.0))
+        self.assertTrue(line3_qeq(a, b, fe))
+        # with float, expect same direction but with norm == the float
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0), 7.0)
+        self.assertTrue(line3_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+        # same as before but pass an int
+        b = eu.Line3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0), 7)
+        self.assertTrue(line3_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+        # with Line3, expect equal
+        b = eu.Line3(a)
+        self.assertTrue(line3_qeq(a, b, fe))
+
+    def test_basic_sanity__ray3_qeq(self):
+        # line t*(2, 1, 7) + (0, 1, 0)
+        a = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        # same p, same v -> True
+        b = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        self.assertTrue(ray3_qeq(a, b, fe))
+        # same v, different p -> False
+        b = eu.Ray3(eu.Point3(0.0, 0.9, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        self.assertFalse(ray3_qeq(a, b, fe))
+        # non-parallel v, same p -> False
+        b = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.1, 7.0))
+        self.assertFalse(ray3_qeq(a, b, fe))
+
+    def test_Ray3_basics(self):
+        # line t*(2, 1, 7) + (0, 1, 0)
+        a = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0))
+        # with -v
+        b = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(-2.0, -1.0, -7.0))
+        self.assertFalse(ray3_qeq(a, b, fe))
+        # with 2*v
+        b = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(4.0, 2.0, 14.0))
+        self.assertTrue(ray3_qeq(a, b, fe))
+        # with float, expect same direction but with norm == abs(float)
+        b = eu.Ray3(eu.Point3(0.0, 1.0, 0.0), eu.Vector3(2.0, 1.0, 7.0), 7.0)
+        self.assertTrue(ray3_qeq(a, b, fe))
+        self.assertTrue(abs(b.v.magnitude() - 7)<fe)
+        # with Ray3, expect equal
+        b = eu.Ray3(a)
+        self.assertTrue(ray3_qeq(a, b, fe))
+
+    def test_basic_sanity__linesegment3_qeq(self):
+        # with itself
+        a = eu.Point3(1, 2, 7); b = eu.Point3(5, 11, 19)
+        r = eu.LineSegment3(a, b)
+        self.assertTrue(linesegment3_qeq(r, r, fe))
+        # with reversed
+        s = eu.LineSegment3(b, a)
+        self.assertTrue(linesegment3_qeq(r, s, fe))
+        # with different
+        b = eu.Point3(5, 11, 19.1)
+        s = eu.LineSegment3(a, b)
+        self.assertFalse(linesegment3_qeq(r, s, fe))
+
+    def test_LineSegment3_basics(self):
+        # line t*(2, 1) + (0, 1)
+        a = eu.LineSegment3(eu.Point3(0.0, 1.0, 11.0), eu.Vector3(2.0, 1.0, 7.0))
+        # with LineSegment3, expect equal
+        b = eu.LineSegment3(a)
+        self.assertTrue(linesegment3_qeq(a, b, fe))
+
 if __name__ == '__main__':
     unittest.main()
