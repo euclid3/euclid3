@@ -276,7 +276,8 @@ class Vector2(Slotted):
 
     def angle_oriented(self, other):
         """Return the angle to the vector other, with orientation in sign"""
-        return math.atan2(self.determinant(other), self.dot(other))
+        # inlined version of atan2(self.determinant(other), self.dot(other))
+        return math.atan2(self.x * other.y - self.y * other.x, self.x * other.x + self.y * other.y)
 
     def project(self, other):
         """Return one vector projected on the vector other"""
