@@ -5,3 +5,4 @@ Dov Grobgeld <dov.grobgeld@gmail.com>
 elfnor
 Claudio Canepa <ccanepacc@gmail.com>
 RicardoQuesada <ricardoquesada@gmail.com>
+Morten Lied Johansen <mortenjo@ifi.uio.no>

@@ -22,7 +22,7 @@
 '''euclid graphics maths module
 
 Documentation and tests are included in the file "euclid.txt", or online
-at http://code.google.com/p/pyeuclid
+at https://github.com/euclid3/euclid3/blob/master/euclid.txt
 '''
 
 from __future__ import division, print_function, unicode_literals
@@ -36,8 +36,7 @@ else:
     scalar_types = (int, long, float) 
 
 __docformat__ = 'restructuredtext'
-__version__ = '$Id$'
-__revision__ = '$Revision$'
+version = '0.2.0'
 
 import math
 import operator

@@ -1,3 +1,12 @@
+Faster Vector2.angle Vector2.angle_oriented, #10, #11 
+
+Fix potential traceback in Vector2.angle, commmit 236813ee 
+
+Fixed some type handling, commit 4d343dc30075
+
+Fixed a traceback in Circle intersecting LineSegment2, Ray2, Line2, #9
+
+Added some Vector2 methods: angle_oriented, rotate, determinant, #9
 
 Adopted the cocos.euclid implementation of Matrix3 determinant and inverse;
 is a bit faster. Issue #5
