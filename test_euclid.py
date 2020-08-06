@@ -969,6 +969,18 @@ class Test_Circle_intersect(unittest.TestCase):
         expect = eu.Point2(0, 1)
         self.assertTrue(abs(expect - C.intersect(ls)) < fe)
 
+class Test_LineSegment2_specials(unittest.TestCase):
+    def test__swap(self):
+        a = eu.Point2(1, 3)
+        b = eu.Point2(7, 17)
+        self.assertTrue(linesegment2_qeq(
+            eu.LineSegment2(a, b)._swap(), eu.LineSegment2(b, a), fe))
+
+    def test_abs(self):
+        a = eu.Point2(1, 3)
+        b = eu.Point2(2, 4)
+        abs(abs(eu.LineSegment2(a, b)) - 1) < fe
+        
 class Test_Point3(unittest.TestCase):
     def test_swizzle_get(self):
         xyz = (1.0, 2.0, 3.0)

@@ -105,7 +105,7 @@ class Vector2(Slotted):
     def __iter__(self):
         return iter((self.x, self.y))
 
-    # swizzle implemented as properties, read only
+    # swizzle implemented as properties, read only, np repetitions
     def _get_xy(self): return self.x, self.y
     xy = property(_get_xy, doc="(x, y)")
 
@@ -345,7 +345,7 @@ class Vector3(Slotted):
         l[key] = value
         self.x, self.y, self.z = l
 
-    # swizzle implemented as properties, read only
+    # swizzle implemented as properties, read only, no repetitions
     def _get_xy(self): return self.x, self.y
     xy = property(_get_xy, doc="(x, y)")
 

@@ -1,8 +1,8 @@
 :author: Alex Holkner
 :address: alex@partiallydisassembled.net
 
-:revision: $Revision$
-:date: $Date$
+:revision: 0.2.0
+:date: 2020 08 06
 
 :copyright: Copyright (c) 2006 Alex Holkner
     Alex.Holkner@gmail.com
@@ -92,10 +92,10 @@ You can also "swizzle" the components (*a la* GLSL or Cg)::
     (1, 2, 3)
     >>> v.zx
     (3, 1)
-    >>> v.zzzz
-    (3, 3, 3, 3)
 
-All of the above accessors are also mutators[1]::
+but no component duplicates are allowed, by example v.xxz will traceback.
+
+All of the above accessors except the swizzles ones are also mutators::
 
     >>> v = Vector3(1, 2, 3)
     >>> v.x = 5
@@ -105,7 +105,7 @@ All of the above accessors are also mutators[1]::
     >>> v
     Vector3(5.00, 10.00, 20.00)
 
-[1] assignment via a swizzle (e.g., ``v.xyz = (1, 2, 3)``) is not supported
+Assignment via a swizzle (e.g., ``v.xyz = (1, 2, 3)``) is not supported
 as it impacts on the performance of ordinary attribute
 setting, and is slower than setting components sequentially anyway.
 
@@ -248,7 +248,7 @@ The following methods do *not* alter the original vector or their arguments:
 
         >>> v1 = Vector2(1., 1.)
         >>> v1.angle(Vector2(1., 0.))
-        0.7853981633974484
+        0.7853981633974483
         >>> v1.angle(Vector2(-1., 0.))
         2.356194490192345
 
@@ -614,7 +614,7 @@ Rotations can be formed using the constructors:
         >>> q1 = Quaternion.new_rotate_axis(math.pi / 2, Vector3(1, 0, 0))
         >>> q2 = Quaternion.new_rotate_axis(math.pi / 2, Vector3(0, 1, 0))
         >>> for i in range(11):
-        ...     print Quaternion.new_interpolate(q1, q2, i / 10.0)
+        ...     print(Quaternion.new_interpolate(q1, q2, i / 10.0))
         ...
         Quaternion(real=0.71, imag=<0.71, 0.00, 0.00>)
         Quaternion(real=0.75, imag=<0.66, 0.09, 0.00>)
@@ -797,11 +797,16 @@ The following methods are supported by all three classes:
 
     >>> c = Circle(Point2(0.0, 0.0), 1.0)
     >>> s = LineSegment2(Point2(-4.0, 0.0), Point2(-3.0, 0.0))
+    >>> s.intersect(c) is None
+    True
+	>>> s = LineSegment2(Point2(0.5, 0.0), Point2(2.0, 0.0))
     >>> s.intersect(c)
+    LineSegment2(<1.00, 0.00> to <0.50, 0.00>)
 
     >>> c = Circle(Point2(4,5), 1.0)
     >>> r = Ray2(Point2(13.0, 5.0), Vector2(1.0, 0.0))
     >>> r.intersect(c)
+
 
 ``connect(other)``
     Returns a **LineSegment2** which is the minimum length line segment
