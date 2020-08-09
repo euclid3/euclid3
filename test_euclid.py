@@ -1004,6 +1004,11 @@ class Test_Point3(unittest.TestCase):
         self.assertEqual(v3.yxz, (xyz[1], xyz[0], xyz[2]) )
         self.assertEqual(v3.yzx, (xyz[1], xyz[2], xyz[0]) )
 
+##    point in line nearest 0: minimize distance to 0, same as minimize distance
+##    aquared, 
+##    d(t) = Sum(pi + t*vi)**2 = Sum(pi**2 + 2*pi*vi*t + vi**2*t**2)
+##    d'(t) = Sum(2*pi*vi + 2*vi**2*t) = 2 * <p, v> + 2 * |v|**2 * t
+##    So 0 = d'(t0) -> t0 = - <p, v> / |v|**2
 def point_nearest_0(L):
     assert isinstance(L, eu.Line3)
     t = - L.p.dot(L.v) / L.v.magnitude_squared()
