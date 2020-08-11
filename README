@@ -1,15 +1,29 @@
 euclid3
 vector, matrix, quaternion and some geometry in 2D and 3D for Python 2.6+ and 3.3+
+Last python tested: 3.8
 
-This is a fork of euclid, http://code.google.com/p/pyeuclid/
+This is a fork of euclid, http://code.google.com/p/pyeuclid/ maintained on behalf of cocos2d
 
 Usage
 -----
 
 See "euclid.txt" for detailed documentation.  The file is readable as
 plain text, and can also be compiled to a set of HTML pages with the
-included Makefile.  The documentation contains some tests which
-can also be run through the Makefile.
+included Makefile (or docutils rst2html). 
+
+The documentation contains some tests which can be run with::
+
+    python -m doctest euclid.txt
+    
+Also they are some unittests in test_euclid.py which can be run with::
+
+    python test_euclid.py
+
+or::
+
+    pytest test_euclid.py
+
+Some additional code used for benchmark and testing lives at https://github.com/euclid3/dev_extras
 
 License
 -------
